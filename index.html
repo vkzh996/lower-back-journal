@@ -1,148 +1,78 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#ffffff" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Поясница" />
-    <title>Журнал упражнений для поясницы</title>
-    <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="icons/icon-192.svg" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="storage-mode.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Журнал поясницы</p>
-          <h1>Тренировка сегодня</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Поясница" />
+  <title>Журнал упражнений для поясницы</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.svg" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="storage-mode.css?v=14" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div><p class="eyebrow">Журнал поясницы</p><h1>Тренировка сегодня</h1></div>
+      <button class="icon-button" id="exportButton" type="button" title="Резервная копия в iCloud" aria-label="Резервная копия в iCloud"><span aria-hidden="true">⇩</span></button>
+    </header>
+    <main>
+      <nav class="tabs" aria-label="Разделы">
+        <button class="tab active" type="button" data-view="today">Сегодня</button>
+        <button class="tab" type="button" data-view="stats">Статистика</button>
+        <button class="tab" type="button" data-view="history">История</button>
+      </nav>
+      <section class="view active" id="todayView">
+        <div class="session-panel">
+          <label class="field"><span>Дата</span><input id="sessionDate" type="date" /></label>
+          <label class="field"><span>Самочувствие</span><select id="moodSelect"><option value="5">Отлично</option><option value="4">Хорошо</option><option value="3">Нормально</option><option value="2">Тяжело</option><option value="1">Плохо</option></select></label>
+          <label class="field"><span>Боль в мышцах</span><input id="painRange" type="range" min="0" max="10" value="0" /><strong id="painValue">0/10</strong></label>
         </div>
-        <button class="icon-button" id="exportButton" type="button" title="Резервная копия в iCloud" aria-label="Резервная копия в iCloud">
-          <span aria-hidden="true">⇩</span>
-        </button>
-      </header>
-
-      <main>
-        <nav class="tabs" aria-label="Разделы">
-          <button class="tab active" type="button" data-view="today">Сегодня</button>
-          <button class="tab" type="button" data-view="stats">Статистика</button>
-          <button class="tab" type="button" data-view="history">История</button>
-        </nav>
-
-        <section class="view active" id="todayView">
-          <div class="session-panel">
-            <label class="field">
-              <span>Дата</span>
-              <input id="sessionDate" type="date" />
-            </label>
-            <label class="field">
-              <span>Самочувствие</span>
-              <select id="moodSelect">
-                <option value="5">Отлично</option>
-                <option value="4">Хорошо</option>
-                <option value="3">Нормально</option>
-                <option value="2">Тяжело</option>
-                <option value="1">Плохо</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Боль в мышцах</span>
-              <input id="painRange" type="range" min="0" max="10" value="0" />
-              <strong id="painValue">0/10</strong>
-            </label>
-          </div>
-
-          <div class="exercise-list" id="exerciseList" aria-live="polite"></div>
-
-          <label class="notes-field">
-            <span>Заметка</span>
-            <textarea id="sessionNote" rows="3" placeholder="Например: делал медленно, без дискомфорта"></textarea>
-          </label>
-
-          <button class="primary-action" id="saveSessionButton" type="button">Сохранить тренировку</button>
-        </section>
-
-        <section class="view" id="statsView">
-          <div class="stats-grid">
-            <div class="metric"><span>Тренировок</span><strong id="statSessions">0</strong></div>
-            <div class="metric"><span>Повторений</span><strong id="statReps">0</strong></div>
-            <div class="metric"><span>Серия</span><strong id="statStreak">0 дн.</strong></div>
-            <div class="metric"><span>Средняя боль в мышцах</span><strong id="statPain">0</strong></div>
-          </div>
-
-          <section class="chart-section">
-            <div class="section-heading"><h2>Последние 14 дней</h2><span id="chartHint">Нет данных</span></div>
-            <canvas id="weeklyChart" width="640" height="320" aria-label="График повторений за последние 14 дней"></canvas>
-          </section>
-
-          <section class="calendar-section">
-            <div class="section-heading calendar-heading">
-              <button class="month-button" id="prevMonthButton" type="button" aria-label="Предыдущий месяц">←</button>
-              <h2 id="calendarTitle">Месяц</h2>
-              <button class="month-button" id="nextMonthButton" type="button" aria-label="Следующий месяц">→</button>
-            </div>
-            <div class="calendar-weekdays" aria-hidden="true"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div>
-            <div class="calendar-grid" id="calendarGrid" aria-label="Календарь тренировок"></div>
-            <div class="day-detail" id="dayDetail"></div>
-          </section>
-
-          <section class="ranking-section">
-            <div class="section-heading"><h2>По упражнениям</h2></div>
-            <div id="exerciseStats" class="exercise-stats"></div>
-          </section>
-        </section>
-
-        <section class="view" id="historyView">
-          <section class="backup-section">
-            <div class="section-heading">
-              <h2>Резервная копия</h2>
-              <span id="backupStatus">Хранится на этом устройстве</span>
-            </div>
-            <div class="storage-choice" role="radiogroup" aria-label="Место хранения статистики">
-              <input id="autoBackupToggle" type="checkbox" hidden />
-              <label><input type="radio" name="storageMode" value="device" /><span>На iPhone</span></label>
-              <label><input type="radio" name="storageMode" value="icloud" /><span>iCloud Drive</span></label>
-            </div>
-            <p class="storage-note" id="storageNote">Статистика хранится в браузере на этом iPhone.</p>
-            <div class="backup-actions">
-              <button class="backup-action cloud" id="backupButton" type="button">Копия в iCloud</button>
-              <button class="backup-action restore" id="restoreButton" type="button">Восстановить</button>
-            </div>
-            <input id="restoreInput" type="file" accept="application/json,.json" hidden />
-          </section>
-
-          <div class="section-heading history-heading"><h2>Записи</h2><button class="secondary-action" id="clearDataButton" type="button">Очистить</button></div>
-          <div id="historyList" class="history-list"></div>
-        </section>
-      </main>
-    </div>
-
-    <template id="exerciseTemplate">
-      <article class="exercise-row">
-        <div class="exercise-main"><span class="exercise-number"></span><div><h2></h2><p></p><button class="details-toggle" type="button">Техника</button></div></div>
-        <div class="rep-control">
-          <button type="button" class="stepper minus" aria-label="Уменьшить повторы">−</button>
-          <input type="number" min="0" max="200" inputmode="numeric" />
-          <button type="button" class="stepper plus" aria-label="Увеличить повторы">+</button>
+        <div class="exercise-list" id="exerciseList" aria-live="polite"></div>
+        <label class="notes-field"><span>Заметка</span><textarea id="sessionNote" rows="3" placeholder="Например: делал медленно, без дискомфорта"></textarea></label>
+        <button class="primary-action" id="saveSessionButton" type="button">Сохранить тренировку</button>
+      </section>
+      <section class="view" id="statsView">
+        <div class="stats-grid">
+          <div class="metric"><span>Тренировок</span><strong id="statSessions">0</strong></div>
+          <div class="metric"><span>Повторений</span><strong id="statReps">0</strong></div>
+          <div class="metric"><span>Серия</span><strong id="statStreak">0 дн.</strong></div>
+          <div class="metric"><span>Средняя боль в мышцах</span><strong id="statPain">0</strong></div>
         </div>
-        <div class="exercise-details">
-          <img class="exercise-media" loading="lazy" referrerpolicy="no-referrer" alt="" />
-          <div class="detail-copy">
-            <p><strong>Как делать:</strong> <span class="technique"></span></p>
-            <p><strong>Зачем:</strong> <span class="benefit"></span></p>
-            <p><strong>Проще:</strong> <span class="easier"></span></p>
-            <a href="https://goodlooker.ru/uprazhnenia-na-ukreplenie-pojasnicy.html" target="_blank" rel="noreferrer">Источник: GoodLooker</a>
+        <section class="chart-section"><div class="section-heading"><h2>Последние 14 дней</h2><span id="chartHint">Нет данных</span></div><canvas id="weeklyChart" width="640" height="320" aria-label="График повторений за последние 14 дней"></canvas></section>
+        <section class="calendar-section">
+          <div class="section-heading calendar-heading"><button class="month-button" id="prevMonthButton" type="button" aria-label="Предыдущий месяц">←</button><h2 id="calendarTitle">Месяц</h2><button class="month-button" id="nextMonthButton" type="button" aria-label="Следующий месяц">→</button></div>
+          <div class="calendar-weekdays" aria-hidden="true"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div>
+          <div class="calendar-grid" id="calendarGrid" aria-label="Календарь тренировок"></div><div class="day-detail" id="dayDetail"></div>
+        </section>
+        <section class="ranking-section"><div class="section-heading"><h2>По упражнениям</h2></div><div id="exerciseStats" class="exercise-stats"></div></section>
+      </section>
+      <section class="view" id="historyView">
+        <section class="backup-section">
+          <div class="section-heading"><h2>Резервная копия</h2><span id="backupStatus">Хранится на этом устройстве</span></div>
+          <div class="storage-choice" role="radiogroup" aria-label="Место хранения статистики">
+            <input id="autoBackupToggle" type="checkbox" hidden />
+            <label><input type="radio" name="storageMode" value="device" /><span>На iPhone</span></label>
+            <label><input type="radio" name="storageMode" value="icloud" /><span>iCloud Drive</span></label>
           </div>
-        </div>
-      </article>
-    </template>
-
-    <script src="app.js"></script>
-    <script src="storage-mode.js"></script>
-    <script src="pain-labels.js"></script>
-    <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");</script>
-  </body>
+          <p class="storage-note" id="storageNote">Статистика хранится в браузере на этом iPhone.</p>
+          <div class="backup-actions"><button class="backup-action cloud" id="backupButton" type="button">Копия в iCloud</button><button class="backup-action restore" id="restoreButton" type="button">Восстановить</button></div>
+          <input id="restoreInput" type="file" accept="application/json,.json" hidden />
+        </section>
+        <div class="section-heading history-heading"><h2>Записи</h2><button class="secondary-action" id="clearDataButton" type="button">Очистить</button></div><div id="historyList" class="history-list"></div>
+      </section>
+    </main>
+  </div>
+  <template id="exerciseTemplate">
+    <article class="exercise-row">
+      <div class="exercise-main"><span class="exercise-number"></span><div><h2></h2><p></p><button class="details-toggle" type="button">Техника</button></div></div>
+      <div class="rep-control"><button type="button" class="stepper minus" aria-label="Уменьшить повторы">−</button><input type="number" min="0" max="200" inputmode="numeric" /><button type="button" class="stepper plus" aria-label="Увеличить повторы">+</button></div>
+      <div class="exercise-details"><img class="exercise-media" loading="lazy" referrerpolicy="no-referrer" alt="" /><div class="detail-copy"><p><strong>Как делать:</strong> <span class="technique"></span></p><p><strong>Зачем:</strong> <span class="benefit"></span></p><p><strong>Проще:</strong> <span class="easier"></span></p><a href="https://goodlooker.ru/uprazhnenia-na-ukreplenie-pojasnicy.html" target="_blank" rel="noreferrer">Источник: GoodLooker</a></div></div>
+    </article>
+  </template>
+  <script src="app.js"></script><script src="storage-mode.js"></script><script src="pain-labels.js"></script><script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");</script>
+</body>
 </html>

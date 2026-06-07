@@ -1,7 +1,7 @@
 :root {
-  --glass: rgba(255, 255, 255, 0.62);
-  --glass-strong: rgba(255, 255, 255, 0.76);
-  --glass-soft: rgba(255, 255, 255, 0.46);
+  --glass: rgba(255, 255, 255, 0.38);
+  --glass-strong: rgba(255, 255, 255, 0.5);
+  --glass-soft: rgba(255, 255, 255, 0.28);
   --glass-border: rgba(255, 255, 255, 0.72);
   --glass-shadow: 0 14px 34px rgba(32, 33, 36, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.82);
 }
@@ -22,7 +22,7 @@
 .day-exercise,
 .empty-state {
   border-color: var(--glass-border);
-  background: var(--glass);
+  background: var(--glass) !important;
   box-shadow: var(--glass-shadow);
   -webkit-backdrop-filter: blur(22px) saturate(145%);
   backdrop-filter: blur(22px) saturate(145%);
@@ -34,7 +34,7 @@
 .chart-section,
 .calendar-section,
 .ranking-section {
-  background: var(--glass-strong);
+  background: var(--glass-strong) !important;
 }
 
 .exercise-details,
@@ -42,7 +42,7 @@
 .day-exercise,
 .stat-line,
 .history-entry {
-  background: var(--glass-soft);
+  background: var(--glass-soft) !important;
 }
 
 input,
@@ -52,19 +52,19 @@ textarea,
 .secondary-action,
 .backup-action.restore {
   border-color: rgba(255, 255, 255, 0.78);
-  background: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.5) !important;
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
 .tab.active {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.62) !important;
   box-shadow: 0 5px 14px rgba(32, 33, 36, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .storage-choice {
   border-color: rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.3) !important;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
@@ -85,7 +85,7 @@ textarea,
   .stat-line,
   .day-exercise,
   .empty-state {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.92) !important;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }

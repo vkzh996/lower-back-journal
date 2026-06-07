@@ -1,4 +1,4 @@
-const CACHE_NAME = "lower-back-log-v11";
+const CACHE_NAME = "lower-back-log-v12";
 const ASSETS = [
   "./",
   "./index.html",

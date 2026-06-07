@@ -1,0 +1,50 @@
+.storage-choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f1f3f4;
+}
+
+.storage-choice label {
+  min-width: 0;
+  cursor: pointer;
+}
+
+.storage-choice input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.storage-choice span {
+  display: grid;
+  min-height: 42px;
+  place-items: center;
+  padding: 8px;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.storage-choice input:checked + span {
+  background: var(--panel, var(--blue));
+  color: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.storage-choice input:focus-visible + span {
+  outline: 2px solid var(--orange, #f9ab00);
+  outline-offset: 2px;
+}
+
+.storage-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}

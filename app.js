@@ -15,20 +15,26 @@ const exercises = [
 ].map(([id, name, target, image, technique, benefit, easier]) => ({ id, name, target, defaultReps: 0, image: `https://goodlooker.ru/wp-content/uploads/${image}`, technique, benefit, easier }));
 
 const moodLabels = { 5: "Отлично", 4: "Хорошо", 3: "Нормально", 2: "Тяжело", 1: "Плохо" };
-const state = { sessions: readSessions(), calendarMonth: new Date(), selectedDate: new Date().toISOString().slice(0, 10) };
+let activeDateKey = localDateKey();
+let sessionDateWasEdited = false;
+const state = { sessions: readSessions(), calendarMonth: new Date(), selectedDate: activeDateKey };
 const $ = (selector) => document.querySelector(selector);
 const els = {
   tabs: document.querySelectorAll(".tab"), views: document.querySelectorAll(".view"), exerciseList: $("#exerciseList"), exerciseTemplate: $("#exerciseTemplate"), sessionDate: $("#sessionDate"), moodSelect: $("#moodSelect"), painRange: $("#painRange"), painValue: $("#painValue"), sessionNote: $("#sessionNote"), saveSessionButton: $("#saveSessionButton"), exportButton: $("#exportButton"), backupButton: $("#backupButton"), restoreButton: $("#restoreButton"), restoreInput: $("#restoreInput"), autoBackupToggle: $("#autoBackupToggle"), backupStatus: $("#backupStatus"), clearDataButton: $("#clearDataButton"), statSessions: $("#statSessions"), statReps: $("#statReps"), statStreak: $("#statStreak"), statPain: $("#statPain"), weeklyChart: $("#weeklyChart"), chartHint: $("#chartHint"), calendarTitle: $("#calendarTitle"), calendarGrid: $("#calendarGrid"), dayDetail: $("#dayDetail"), prevMonthButton: $("#prevMonthButton"), nextMonthButton: $("#nextMonthButton"), exerciseStats: $("#exerciseStats"), historyList: $("#historyList")
 };
 
 init();
-function init() { els.sessionDate.value = new Date().toISOString().slice(0, 10); els.autoBackupToggle.checked = localStorage.getItem(AUTO_BACKUP_KEY) === "true"; renderExerciseInputs(); bindEvents(); renderAll(); }
+function init() { els.sessionDate.value = activeDateKey; els.autoBackupToggle.checked = localStorage.getItem(AUTO_BACKUP_KEY) === "true"; renderExerciseInputs(); bindEvents(); renderAll(); }
 function bindEvents() {
   els.tabs.forEach((tab) => tab.addEventListener("click", () => switchView(tab.dataset.view)));
+  els.sessionDate.addEventListener("change", () => { sessionDateWasEdited = true; });
   els.painRange.addEventListener("input", () => els.painValue.textContent = `${els.painRange.value}/10`);
   els.saveSessionButton.addEventListener("click", saveSession); els.exportButton.addEventListener("click", shareBackup); els.backupButton.addEventListener("click", shareBackup); els.restoreButton.addEventListener("click", () => els.restoreInput.click()); els.restoreInput.addEventListener("change", restoreBackup);
   els.autoBackupToggle.addEventListener("change", () => { localStorage.setItem(AUTO_BACKUP_KEY, String(els.autoBackupToggle.checked)); setBackupStatus(els.autoBackupToggle.checked ? "Автокопия включена" : "Автокопия выключена"); });
   els.clearDataButton.addEventListener("click", clearData); els.prevMonthButton.addEventListener("click", () => shiftCalendarMonth(-1)); els.nextMonthButton.addEventListener("click", () => shiftCalendarMonth(1));
+  window.addEventListener("pageshow", refreshSessionDate);
+  window.addEventListener("focus", refreshSessionDate);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshSessionDate(); });
 }
 function renderExerciseInputs() {
   els.exerciseList.innerHTML = "";
@@ -41,10 +47,19 @@ function renderExerciseInputs() {
   });
 }
 function saveSession() {
+  refreshSessionDate();
   const entries = exercises.map((exercise) => ({ id: exercise.id, name: exercise.name, reps: clampReps($(`input[data-exercise-id="${exercise.id}"]`).value) })); const totalReps = entries.reduce((sum, item) => sum + item.reps, 0);
-  const session = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date: els.sessionDate.value || new Date().toISOString().slice(0, 10), mood: Number(els.moodSelect.value), pain: Number(els.painRange.value), note: els.sessionNote.value.trim(), entries, totalReps, savedAt: new Date().toISOString() };
-  const existingIndex = state.sessions.findIndex((item) => item.date === session.date); if (existingIndex >= 0) state.sessions[existingIndex] = session; else state.sessions.push(session);
-  state.sessions.sort((a, b) => a.date.localeCompare(b.date)); state.selectedDate = session.date; state.calendarMonth = parseLocalDate(session.date); writeSessions(); els.sessionNote.value = ""; renderAll(); flashSaveButton(); if (els.autoBackupToggle.checked) shareBackup();
+  const session = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date: els.sessionDate.value || localDateKey(), mood: Number(els.moodSelect.value), pain: Number(els.painRange.value), note: els.sessionNote.value.trim(), entries, totalReps, savedAt: new Date().toISOString() };
+  const existingIndex = state.sessions.findIndex((item) => item.date === session.date);
+  if (existingIndex >= 0 && !confirm(`Тренировка за ${formatDate(session.date)} уже сохранена. Заменить её?`)) return;
+  if (existingIndex >= 0) state.sessions[existingIndex] = session; else state.sessions.push(session);
+  state.sessions.sort((a, b) => a.date.localeCompare(b.date)); state.selectedDate = session.date; state.calendarMonth = parseLocalDate(session.date); writeSessions(); sessionDateWasEdited = false; els.sessionNote.value = ""; renderAll(); flashSaveButton(); if (els.autoBackupToggle.checked) shareBackup();
+}
+function refreshSessionDate() {
+  const today = localDateKey();
+  if (today === activeDateKey) return;
+  activeDateKey = today;
+  if (!sessionDateWasEdited) els.sessionDate.value = today;
 }
 function switchView(viewName) { els.tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.view === viewName)); els.views.forEach((view) => view.classList.toggle("active", view.id === `${viewName}View`)); if (viewName === "stats") drawChart(); }
 function renderAll() { renderStats(); drawChart(); renderCalendar(); renderSelectedDay(); renderExerciseStats(); renderHistory(); }
@@ -68,10 +83,10 @@ function renderSelectedDay() {
 }
 function renderHistory() { els.historyList.innerHTML = ""; const sessions = [...state.sessions].sort((a, b) => b.date.localeCompare(a.date)); if (!sessions.length) { els.historyList.innerHTML = `<div class="empty-state">Записей пока нет. Сохрани первую тренировку на вкладке “Сегодня”.</div>`; return; } sessions.forEach((session) => { const completed = session.entries.filter((e) => e.reps > 0).length; const entry = document.createElement("article"); entry.className = "history-entry"; entry.innerHTML = `<header><span>${formatDate(session.date)}</span><span>${session.totalReps} повторений</span></header><p>${completed}/10 упражнений, самочувствие: ${moodLabels[session.mood]}, боль: ${session.pain}/10</p>${session.note ? `<p>${escapeHtml(session.note)}</p>` : ""}`; els.historyList.append(entry); }); }
 function drawChart() { const ctx = els.weeklyChart.getContext("2d"); const days = lastDays(14); const values = days.map((date) => state.sessions.find((s) => s.date === date)?.totalReps || 0); const max = Math.max(20, ...values); const canvas = els.weeklyChart; ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height); const padding = 34, plotWidth = canvas.width - padding * 2, plotHeight = canvas.height - padding * 2, gap = 6, barWidth = plotWidth / days.length - gap; ctx.strokeStyle = "#e1e5eb"; for (let i = 0; i <= 4; i++) { const y = padding + plotHeight / 4 * i; ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(canvas.width - padding, y); ctx.stroke(); } values.forEach((value, index) => { const height = value / max * plotHeight; const x = padding + index * plotWidth / days.length; ctx.fillStyle = value ? "#4285f4" : "#dfe6f1"; ctx.fillRect(x, padding + plotHeight - height, barWidth, Math.max(2, height)); }); ctx.fillStyle = "#5f6368"; ctx.font = "22px Arial"; ctx.textAlign = "center"; days.forEach((date, index) => { if (index % 3 === 0 || index === days.length - 1) ctx.fillText(date.slice(8), padding + index * plotWidth / days.length + barWidth / 2, canvas.height - 9); }); els.chartHint.textContent = values.filter(Boolean).length ? `${values.filter(Boolean).length} активных дней` : "Нет данных"; }
-function calculateStreak() { const dates = new Set(state.sessions.map((s) => s.date)); let date = new Date(), streak = 0; while (dates.has(date.toISOString().slice(0, 10))) { streak++; date.setDate(date.getDate() - 1); } return streak; }
-function lastDays(count) { return Array.from({ length: count }, (_, index) => { const date = new Date(); date.setDate(date.getDate() - (count - index - 1)); return date.toISOString().slice(0, 10); }); }
+function calculateStreak() { const dates = new Set(state.sessions.map((s) => s.date)); let date = new Date(), streak = 0; while (dates.has(toDateKey(date))) { streak++; date.setDate(date.getDate() - 1); } return streak; }
+function lastDays(count) { return Array.from({ length: count }, (_, index) => { const date = new Date(); date.setDate(date.getDate() - (count - index - 1)); return toDateKey(date); }); }
 function clearData() { if (!state.sessions.length || !confirm("Удалить все записи тренировок?")) return; state.sessions = []; writeSessions(); renderAll(); }
-async function shareBackup() { const date = new Date().toISOString().slice(0, 10); const fileName = `poyasnica-backup-${date}.json`; const payload = JSON.stringify({ app: "Журнал упражнений для поясницы", version: 1, exportedAt: new Date().toISOString(), sessions: state.sessions }, null, 2); const file = new File([payload], fileName, { type: "application/json" }); try { if (navigator.share && navigator.canShare?.({ files: [file] })) { await navigator.share({ title: "Резервная копия тренировок", text: "Сохрани файл в Файлы → iCloud Drive.", files: [file] }); setBackupStatus(`Копия создана ${formatBackupTime()}`); return; } downloadBackup(file, fileName); setBackupStatus(`Файл скачан ${formatBackupTime()}`); } catch (error) { if (error.name !== "AbortError") { downloadBackup(file, fileName); setBackupStatus("Копия скачана в файлы"); } } }
+async function shareBackup() { const fileName = `poyasnica-backup-${localDateKey()}.json`; const payload = JSON.stringify({ app: "Журнал упражнений для поясницы", version: 1, exportedAt: new Date().toISOString(), sessions: state.sessions }, null, 2); const file = new File([payload], fileName, { type: "application/json" }); try { if (navigator.share && navigator.canShare?.({ files: [file] })) { await navigator.share({ title: "Резервная копия тренировок", text: "Сохрани файл в Файлы → iCloud Drive.", files: [file] }); setBackupStatus(`Копия создана ${formatBackupTime()}`); return; } downloadBackup(file, fileName); setBackupStatus(`Файл скачан ${formatBackupTime()}`); } catch (error) { if (error.name !== "AbortError") { downloadBackup(file, fileName); setBackupStatus("Копия скачана в файлы"); } } }
 function downloadBackup(file, fileName) { const url = URL.createObjectURL(file); const link = document.createElement("a"); link.href = url; link.download = fileName; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
 async function restoreBackup(event) { const [file] = event.target.files; if (!file) return; try { const parsed = JSON.parse(await file.text()); const sessions = Array.isArray(parsed) ? parsed : parsed.sessions; if (!Array.isArray(sessions) || !sessions.every(isValidSession)) throw new Error(); if (state.sessions.length && !confirm("Заменить текущие записи данными из резервной копии?")) return; state.sessions = sessions.sort((a, b) => a.date.localeCompare(b.date)); writeSessions(); renderAll(); setBackupStatus(`Восстановлено записей: ${sessions.length}`); } catch { setBackupStatus("Не удалось прочитать файл"); } finally { event.target.value = ""; } }
 function isValidSession(s) { return s && typeof s.date === "string" && Array.isArray(s.entries) && s.entries.every((e) => typeof e.id === "string" && Number.isFinite(e.reps)); }
@@ -79,5 +94,5 @@ function setBackupStatus(message) { els.backupStatus.textContent = message; } fu
 function flashSaveButton() { const original = els.saveSessionButton.textContent; els.saveSessionButton.textContent = "Сохранено"; setTimeout(() => els.saveSessionButton.textContent = original, 1200); }
 function readSessions() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } } function writeSessions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.sessions)); }
 function clampReps(value) { return Math.max(0, Math.min(200, Number.parseInt(value, 10) || 0)); } function formatDate(value) { return new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "long", year: "numeric" }).format(parseLocalDate(value)); }
-function parseLocalDate(value) { const [year, month, day] = value.split("-").map(Number); return new Date(year, month - 1, day); } function toDateKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`; }
+function parseLocalDate(value) { const [year, month, day] = value.split("-").map(Number); return new Date(year, month - 1, day); } function toDateKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`; } function localDateKey() { return toDateKey(new Date()); }
 function escapeHtml(value) { return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[char]); }

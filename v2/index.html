@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#050507" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Поясница v2" />
+    <title>Поясница v2</title>
+    <link rel="stylesheet" href="styles.css?v=2" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="hero">
+        <div>
+          <p class="kicker">ЛФК поясницы</p>
+          <h1>Активность</h1>
+        </div>
+        <button class="round-button" id="backupButton" type="button" aria-label="Резервная копия">⇩</button>
+      </header>
+
+      <main>
+        <section class="screen active" id="todayScreen">
+          <section class="rings-card">
+            <div class="rings" aria-label="Прогресс тренировки">
+              <div class="ring ring-reps"><span id="ringReps">0</span><small>повт.</small></div>
+              <div class="ring ring-done"><span id="ringDone">0/10</span><small>упр.</small></div>
+              <div class="ring ring-pain"><span id="ringPain">0</span><small>боль</small></div>
+            </div>
+            <div class="today-summary">
+              <span id="todayDateLabel">Сегодня</span>
+              <strong id="todayHeadline">Тренировка не сохранена</strong>
+              <p id="todayHint">Выстави повторы и сохрани занятие.</p>
+            </div>
+          </section>
+
+          <section class="session-card">
+            <label><span>Дата</span><input id="sessionDate" type="date" /></label>
+            <label><span>Самочувствие</span><select id="moodSelect"><option value="5">Отлично</option><option value="4">Хорошо</option><option value="3">Нормально</option><option value="2">Тяжело</option><option value="1">Плохо</option></select></label>
+            <label class="full"><span>Боль в мышцах</span><input id="painRange" type="range" min="0" max="10" value="0" /><b id="painValue">0/10</b></label>
+          </section>
+
+          <div class="exercise-list" id="exerciseList"></div>
+          <label class="note-card"><span>Заметка</span><textarea id="sessionNote" rows="3" placeholder="Например: без дискомфорта, делал медленно"></textarea></label>
+          <button class="save-button" id="saveButton" type="button">Сохранить тренировку</button>
+        </section>
+
+        <section class="screen" id="statsScreen">
+          <section class="metrics-grid">
+            <article><span>Тренировок</span><strong id="statSessions">0</strong></article>
+            <article><span>Повторений</span><strong id="statReps">0</strong></article>
+            <article><span>Серия</span><strong id="statStreak">0</strong></article>
+            <article><span>Средняя боль</span><strong id="statPain">0</strong></article>
+          </section>
+          <section class="panel"><div class="panel-head"><h2>Последние 14 дней</h2><span id="chartHint">Нет данных</span></div><canvas id="chart" width="680" height="320"></canvas></section>
+          <section class="panel">
+            <div class="panel-head month-head"><button id="prevMonth" type="button" aria-label="Предыдущий месяц">‹</button><h2 id="monthTitle">Месяц</h2><button id="nextMonth" type="button" aria-label="Следующий месяц">›</button></div>
+            <div class="weekdays"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div>
+            <div class="calendar" id="calendar"></div><div class="day-detail" id="dayDetail"></div>
+          </section>
+        </section>
+
+        <section class="screen" id="historyScreen">
+          <section class="panel">
+            <div class="panel-head"><h2>Хранение</h2><span id="backupStatus">На iPhone</span></div>
+            <div class="storage"><label><input type="radio" name="storageMode" value="device" /><span>На iPhone</span></label><label><input type="radio" name="storageMode" value="icloud" /><span>iCloud Drive</span></label></div>
+            <p class="muted" id="storageNote">Статистика хранится в браузере на этом iPhone.</p>
+            <div class="actions"><button id="manualBackupButton" type="button">Копия в iCloud</button><button id="restoreButton" type="button">Восстановить</button><button id="clearButton" type="button">Очистить</button></div>
+            <input id="restoreInput" type="file" accept="application/json,.json" hidden />
+          </section>
+          <div class="history-list" id="historyList"></div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Разделы">
+        <button class="active" type="button" data-screen="today"><span>◉</span>Сегодня</button>
+        <button type="button" data-screen="stats"><span>▦</span>Статистика</button>
+        <button type="button" data-screen="history"><span>☰</span>История</button>
+      </nav>
+    </div>
+
+    <template id="exerciseTemplate">
+      <article class="exercise">
+        <button class="exercise-info" type="button"><span class="exercise-index"></span><span><strong></strong><small></small></span></button>
+        <div class="stepper"><button class="minus" type="button" aria-label="Уменьшить">−</button><input type="number" min="0" max="200" inputmode="numeric" /><button class="plus" type="button" aria-label="Увеличить">+</button></div>
+        <div class="details"><img loading="lazy" referrerpolicy="no-referrer" alt="" /><p class="technique"></p><p class="benefit"></p></div>
+      </article>
+    </template>
+
+    <script src="app.js?v=2"></script>
+  </body>
+</html>

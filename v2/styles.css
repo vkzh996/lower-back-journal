@@ -39,6 +39,13 @@ h2 { font-size: 1.08rem; letter-spacing: -.01em; }
 .today-summary span { color: var(--orange); font-size: .86rem; font-weight: 700; }
 .today-summary strong { font-size: 1.45rem; line-height: 1.1; letter-spacing: -.02em; }
 .today-summary p,.muted { color: var(--muted); line-height: 1.35; }
+.ring-legend { display: grid; gap: 8px; margin-top: 8px; }
+.ring-legend div { display: grid; grid-template-columns: 10px 1fr auto; gap: 8px; align-items: center; min-height: 28px; color: var(--muted); font-size: .9rem; }
+.ring-legend b { color: var(--text); font-size: .95rem; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot.reps { background: var(--red); }
+.dot.done { background: var(--green); }
+.dot.pain { background: var(--blue); }
 .session-card { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px; }
 label { display: grid; gap: 8px; min-width: 0; }
 label span,.panel-head span,.metrics-grid span { color: var(--muted); font-size: .76rem; font-weight: 700; text-transform: uppercase; }

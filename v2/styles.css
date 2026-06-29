@@ -197,9 +197,6 @@ textarea { resize: vertical; }
 input[type="range"] { padding: 0; accent-color: var(--orange); }
 
 .exercise-list,
-history-list { display: grid; gap: 10px; }
-
-.exercise-list,
 .history-list { display: grid; gap: 10px; }
 
 .exercise {

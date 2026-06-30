@@ -2,6 +2,7 @@ const STORAGE_KEY = "lowerBackExerciseLog.v1";
 const STORAGE_MODE_KEY = "lowerBackExerciseLog.storageMode.v1";
 const MEDIA_DB_NAME = "lowerBackExerciseMedia.v1";
 const MEDIA_STORE_NAME = "exerciseMedia";
+const EXERCISE_MEDIA_VERSION = "8";
 
 const exercises = [
   ["hyperextension", "Гиперэкстензия без отрыва ног", "15-20 повторений", "01-hyperextension", "Ляг на живот, ноги вместе, руки у затылка. Поднимай грудь и плечи без рывка, таз и ноги оставляй на полу.", "Укрепляет разгибатели спины, ягодицы и заднюю поверхность бедра."],
@@ -18,8 +19,8 @@ const exercises = [
   id,
   name,
   target,
-  image: `exercise-media/${asset}.gif`,
-  video: `exercise-media/${asset}.mp4`,
+  image: `exercise-media/${asset}.gif?v=${EXERCISE_MEDIA_VERSION}`,
+  video: `exercise-media/${asset}.mp4?v=${EXERCISE_MEDIA_VERSION}`,
   technique,
   benefit,
 }));

@@ -1,19 +1,13 @@
 (() => {
-  const replacements = [
-    ["Боль в пояснице", "Боль в мышцах"],
-    ["Средняя боль", "Средняя боль в мышцах"],
-    [", боль: ", ", боль в мышцах: "],
-  ];
-
   function updateLabels(root = document.body) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     let node;
 
     while ((node = walker.nextNode())) {
       let value = node.nodeValue;
-      replacements.forEach(([from, to]) => {
-        value = value.replace(from, to);
-      });
+      value = value.replace("Боль в пояснице", "Боль в мышцах");
+      value = value.replace("Средняя боль в пояснице", "Средняя боль в мышцах");
+      value = value.replace(", боль: ", ", боль в мышцах: ");
       value = value.replace(/^Боль (\d+\/10)$/, "Боль в мышцах $1");
       node.nodeValue = value;
     }

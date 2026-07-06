@@ -15,6 +15,13 @@ const exercises = [
 ].map(([id, name, target, image, technique, benefit, easier]) => ({ id, name, target, defaultReps: 0, image: `https://goodlooker.ru/wp-content/uploads/${image}`, technique, benefit, easier }));
 
 const moodLabels = { 5: "Отлично", 4: "Хорошо", 3: "Нормально", 2: "Тяжело", 1: "Плохо" };
+const painLevels = [
+  { value: 0, title: "Нет боли", detail: "Двигаюсь свободно" },
+  { value: 1, title: "Легкое напряжение", detail: "Чувствую мышцы, но это не мешает" },
+  { value: 2, title: "Тянет, но терпимо", detail: "Делаю аккуратно, без рывков" },
+  { value: 3, title: "Заметная боль", detail: "Снижаю амплитуду и нагрузку" },
+  { value: 4, title: "Лучше остановиться", detail: "Прекращаю упражнение и наблюдаю" },
+];
 let activeDateKey = localDateKey();
 let sessionDateWasEdited = false;
 const state = { sessions: readSessions(), calendarMonth: new Date(), selectedDate: activeDateKey };
@@ -24,11 +31,11 @@ const els = {
 };
 
 init();
-function init() { els.sessionDate.value = activeDateKey; els.autoBackupToggle.checked = localStorage.getItem(AUTO_BACKUP_KEY) === "true"; renderExerciseInputs(); bindEvents(); renderAll(); }
+function init() { els.sessionDate.value = activeDateKey; els.autoBackupToggle.checked = localStorage.getItem(AUTO_BACKUP_KEY) === "true"; renderExerciseInputs(); bindEvents(); updatePainDisplay(); renderAll(); }
 function bindEvents() {
   els.tabs.forEach((tab) => tab.addEventListener("click", () => switchView(tab.dataset.view)));
   els.sessionDate.addEventListener("change", () => { sessionDateWasEdited = true; });
-  els.painRange.addEventListener("input", () => els.painValue.textContent = `${els.painRange.value}/10`);
+  els.painRange.addEventListener("change", updatePainDisplay);
   els.saveSessionButton.addEventListener("click", saveSession); els.exportButton.addEventListener("click", shareBackup); els.backupButton.addEventListener("click", shareBackup); els.restoreButton.addEventListener("click", () => els.restoreInput.click()); els.restoreInput.addEventListener("change", restoreBackup);
   els.autoBackupToggle.addEventListener("change", () => { localStorage.setItem(AUTO_BACKUP_KEY, String(els.autoBackupToggle.checked)); setBackupStatus(els.autoBackupToggle.checked ? "Автокопия включена" : "Автокопия выключена"); });
   els.clearDataButton.addEventListener("click", clearData); els.prevMonthButton.addEventListener("click", () => shiftCalendarMonth(-1)); els.nextMonthButton.addEventListener("click", () => shiftCalendarMonth(1));
@@ -49,7 +56,7 @@ function renderExerciseInputs() {
 function saveSession() {
   refreshSessionDate();
   const entries = exercises.map((exercise) => ({ id: exercise.id, name: exercise.name, reps: clampReps($(`input[data-exercise-id="${exercise.id}"]`).value) })); const totalReps = entries.reduce((sum, item) => sum + item.reps, 0);
-  const session = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date: els.sessionDate.value || localDateKey(), mood: Number(els.moodSelect.value), pain: Number(els.painRange.value), note: els.sessionNote.value.trim(), entries, totalReps, savedAt: new Date().toISOString() };
+  const session = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date: els.sessionDate.value || localDateKey(), mood: Number(els.moodSelect.value), pain: getSelectedPainLevel(), painScale: "levels-v1", note: els.sessionNote.value.trim(), entries, totalReps, savedAt: new Date().toISOString() };
   const existingIndex = state.sessions.findIndex((item) => item.date === session.date);
   if (existingIndex >= 0 && !confirm(`Тренировка за ${formatDate(session.date)} уже сохранена. Заменить её?`)) return;
   if (existingIndex >= 0) state.sessions[existingIndex] = session; else state.sessions.push(session);
@@ -63,7 +70,7 @@ function refreshSessionDate() {
 }
 function switchView(viewName) { els.tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.view === viewName)); els.views.forEach((view) => view.classList.toggle("active", view.id === `${viewName}View`)); if (viewName === "stats") drawChart(); }
 function renderAll() { renderStats(); drawChart(); renderCalendar(); renderSelectedDay(); renderExerciseStats(); renderHistory(); }
-function renderStats() { const totalReps = state.sessions.reduce((sum, s) => sum + s.totalReps, 0); const avgPain = state.sessions.length ? state.sessions.reduce((sum, s) => sum + s.pain, 0) / state.sessions.length : 0; els.statSessions.textContent = state.sessions.length; els.statReps.textContent = totalReps; els.statStreak.textContent = `${calculateStreak()} дн.`; els.statPain.textContent = avgPain.toFixed(1); }
+function renderStats() { const totalReps = state.sessions.reduce((sum, s) => sum + s.totalReps, 0); const avgPain = state.sessions.length ? state.sessions.reduce((sum, s) => sum + normalizePainLevel(s), 0) / state.sessions.length : 0; els.statSessions.textContent = state.sessions.length; els.statReps.textContent = totalReps; els.statStreak.textContent = `${calculateStreak()} дн.`; els.statPain.textContent = state.sessions.length ? painLevelTitle(Math.round(avgPain)) : "Нет боли"; }
 function renderExerciseStats() {
   els.exerciseStats.innerHTML = ""; const totals = exercises.map((exercise) => ({ ...exercise, total: state.sessions.reduce((sum, session) => sum + (session.entries.find((item) => item.id === exercise.id)?.reps || 0), 0) })); const max = Math.max(1, ...totals.map((item) => item.total));
   if (!state.sessions.length) { els.exerciseStats.innerHTML = `<div class="empty-state">После первой тренировки здесь появится разбивка по упражнениям.</div>`; return; }
@@ -79,9 +86,9 @@ function renderCalendar() {
 function renderSelectedDay() {
   const session = state.sessions.find((item) => item.date === state.selectedDate); if (!session) { els.dayDetail.innerHTML = `<div class="empty-state">${formatDate(state.selectedDate)}: тренировки нет. Выбери день с отметкой или сохрани новую тренировку.</div>`; return; }
   const completed = session.entries.filter((e) => e.reps > 0).length; const topEntry = [...session.entries].sort((a, b) => b.reps - a.reps)[0]; const maxReps = Math.max(1, ...session.entries.map((e) => e.reps)); const zeroCount = session.entries.filter((e) => e.reps === 0).length;
-  els.dayDetail.innerHTML = `<article class="day-card"><header><div><span>День</span><strong>${formatDate(session.date)}</strong></div><div><span>Итог</span><strong>${session.totalReps}</strong></div></header><div class="day-metrics"><span>${completed}/10 упражнений</span><span>${moodLabels[session.mood]}</span><span>Боль ${session.pain}/10</span><span>${zeroCount ? `Пропущено ${zeroCount}` : "Без пропусков"}</span></div><p class="day-insight">Больше всего: ${topEntry ? `${topEntry.name}, ${topEntry.reps}` : "нет данных"}.</p>${session.note ? `<p class="day-note">${escapeHtml(session.note)}</p>` : ""}<div class="day-exercises">${session.entries.map((entry) => `<div class="day-exercise ${entry.reps ? "" : "empty"}"><span>${entry.name}</span><strong>${entry.reps}</strong><progress value="${entry.reps}" max="${maxReps}"></progress></div>`).join("")}</div></article>`;
+  els.dayDetail.innerHTML = `<article class="day-card"><header><div><span>День</span><strong>${formatDate(session.date)}</strong></div><div><span>Итог</span><strong>${session.totalReps}</strong></div></header><div class="day-metrics"><span>${completed}/10 упражнений</span><span>${moodLabels[session.mood]}</span><span>Мышцы: ${painLevelTitle(normalizePainLevel(session))}</span><span>${zeroCount ? `Пропущено ${zeroCount}` : "Без пропусков"}</span></div><p class="day-insight">Больше всего: ${topEntry ? `${topEntry.name}, ${topEntry.reps}` : "нет данных"}.</p>${session.note ? `<p class="day-note">${escapeHtml(session.note)}</p>` : ""}<div class="day-exercises">${session.entries.map((entry) => `<div class="day-exercise ${entry.reps ? "" : "empty"}"><span>${entry.name}</span><strong>${entry.reps}</strong><progress value="${entry.reps}" max="${maxReps}"></progress></div>`).join("")}</div></article>`;
 }
-function renderHistory() { els.historyList.innerHTML = ""; const sessions = [...state.sessions].sort((a, b) => b.date.localeCompare(a.date)); if (!sessions.length) { els.historyList.innerHTML = `<div class="empty-state">Записей пока нет. Сохрани первую тренировку на вкладке “Сегодня”.</div>`; return; } sessions.forEach((session) => { const completed = session.entries.filter((e) => e.reps > 0).length; const entry = document.createElement("article"); entry.className = "history-entry"; entry.innerHTML = `<header><span>${formatDate(session.date)}</span><span>${session.totalReps} повторений</span></header><p>${completed}/10 упражнений, самочувствие: ${moodLabels[session.mood]}, боль: ${session.pain}/10</p>${session.note ? `<p>${escapeHtml(session.note)}</p>` : ""}`; els.historyList.append(entry); }); }
+function renderHistory() { els.historyList.innerHTML = ""; const sessions = [...state.sessions].sort((a, b) => b.date.localeCompare(a.date)); if (!sessions.length) { els.historyList.innerHTML = `<div class="empty-state">Записей пока нет. Сохрани первую тренировку на вкладке “Сегодня”.</div>`; return; } sessions.forEach((session) => { const completed = session.entries.filter((e) => e.reps > 0).length; const entry = document.createElement("article"); entry.className = "history-entry"; entry.innerHTML = `<header><span>${formatDate(session.date)}</span><span>${session.totalReps} повторений</span></header><p>${completed}/10 упражнений, самочувствие: ${moodLabels[session.mood]}, мышцы: ${painLevelTitle(normalizePainLevel(session))}</p>${session.note ? `<p>${escapeHtml(session.note)}</p>` : ""}`; els.historyList.append(entry); }); }
 function drawChart() { const ctx = els.weeklyChart.getContext("2d"); const days = lastDays(14); const values = days.map((date) => state.sessions.find((s) => s.date === date)?.totalReps || 0); const max = Math.max(20, ...values); const canvas = els.weeklyChart; ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height); const padding = 34, plotWidth = canvas.width - padding * 2, plotHeight = canvas.height - padding * 2, gap = 6, barWidth = plotWidth / days.length - gap; ctx.strokeStyle = "#e1e5eb"; for (let i = 0; i <= 4; i++) { const y = padding + plotHeight / 4 * i; ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(canvas.width - padding, y); ctx.stroke(); } values.forEach((value, index) => { const height = value / max * plotHeight; const x = padding + index * plotWidth / days.length; ctx.fillStyle = value ? "#4285f4" : "#dfe6f1"; ctx.fillRect(x, padding + plotHeight - height, barWidth, Math.max(2, height)); }); ctx.fillStyle = "#5f6368"; ctx.font = "22px Arial"; ctx.textAlign = "center"; days.forEach((date, index) => { if (index % 3 === 0 || index === days.length - 1) ctx.fillText(date.slice(8), padding + index * plotWidth / days.length + barWidth / 2, canvas.height - 9); }); els.chartHint.textContent = values.filter(Boolean).length ? `${values.filter(Boolean).length} активных дней` : "Нет данных"; }
 function calculateStreak() { const dates = new Set(state.sessions.map((s) => s.date)); let date = new Date(), streak = 0; while (dates.has(toDateKey(date))) { streak++; date.setDate(date.getDate() - 1); } return streak; }
 function lastDays(count) { return Array.from({ length: count }, (_, index) => { const date = new Date(); date.setDate(date.getDate() - (count - index - 1)); return toDateKey(date); }); }
@@ -92,6 +99,19 @@ async function restoreBackup(event) { const [file] = event.target.files; if (!fi
 function isValidSession(s) { return s && typeof s.date === "string" && Array.isArray(s.entries) && s.entries.every((e) => typeof e.id === "string" && Number.isFinite(e.reps)); }
 function setBackupStatus(message) { els.backupStatus.textContent = message; } function formatBackupTime() { return new Intl.DateTimeFormat("ru-RU", { hour: "2-digit", minute: "2-digit" }).format(new Date()); }
 function flashSaveButton() { const original = els.saveSessionButton.textContent; els.saveSessionButton.textContent = "Сохранено"; setTimeout(() => els.saveSessionButton.textContent = original, 1200); }
+function updatePainDisplay() { const level = painLevels[getSelectedPainLevel()] || painLevels[0]; els.painValue.textContent = level.detail; }
+function getSelectedPainLevel() { return Math.max(0, Math.min(painLevels.length - 1, Number.parseInt(els.painRange.value, 10) || 0)); }
+function normalizePainLevel(session) {
+  const value = Number(session.pain);
+  if (!Number.isFinite(value)) return 0;
+  if (session.painScale === "levels-v1") return Math.max(0, Math.min(painLevels.length - 1, Math.round(value)));
+  if (value <= 1) return 0;
+  if (value <= 3) return 1;
+  if (value <= 5) return 2;
+  if (value <= 7) return 3;
+  return 4;
+}
+function painLevelTitle(level) { return (painLevels[level] || painLevels[0]).title; }
 function readSessions() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } } function writeSessions() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.sessions)); }
 function clampReps(value) { return Math.max(0, Math.min(200, Number.parseInt(value, 10) || 0)); } function formatDate(value) { return new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "long", year: "numeric" }).format(parseLocalDate(value)); }
 function parseLocalDate(value) { const [year, month, day] = value.split("-").map(Number); return new Date(year, month - 1, day); } function toDateKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`; } function localDateKey() { return toDateKey(new Date()); }

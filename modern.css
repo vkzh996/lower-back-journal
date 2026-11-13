@@ -1,0 +1,48 @@
+:root{--ink:#1b3030;--muted:#607573;--line:#d3e1dd;--blue:#176f68;--green:#247c5d;--paper:#fff;--shadow:0 3px 16px rgba(28,68,61,.07)}
+html{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#eaf2f0;color:var(--ink)}
+body{background:#eaf2f0;color:var(--ink)}
+.app-shell{max-width:960px;padding:24px 20px 48px}
+.topbar{align-items:center;margin-bottom:24px}
+.eyebrow{color:#247c5d;font-size:.78rem;font-weight:700;letter-spacing:0;text-transform:none;margin-bottom:6px}
+h1{font-size:1.9rem;line-height:1.15;letter-spacing:0}
+.icon-button{width:48px;height:48px;background:#fff;color:#176f68;border:1px solid var(--line);border-radius:8px;box-shadow:none;font-size:1.5rem}
+.tabs{background:#dbe9e5;border-radius:8px;padding:4px;gap:4px;margin-bottom:20px}
+.tab{min-height:44px;border:0;border-radius:6px;color:#536c68;background:transparent;font-size:.9rem}
+.tab.active{background:#fff;color:#145e58;box-shadow:0 1px 5px rgba(24,58,53,.1)}
+.session-panel,.notes-field,.chart-section,.calendar-section,.ranking-section,.backup-section{background:transparent;border:0;box-shadow:none;padding:0}
+.session-panel{gap:12px;margin-bottom:22px}
+.field{gap:7px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:8px}
+.field span,.notes-field span{color:#516a66;font-size:.8rem;font-weight:700}
+input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink);border:1px solid #cbdad6;border-radius:6px;background:#f8fbfa;min-height:46px}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid #278b80;outline-offset:2px}
+.pain-field strong{color:#247c5d;font-size:.8rem;line-height:1.35}
+.exercise-list{gap:10px}
+.exercise-row{padding:16px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:none;gap:14px}
+.exercise-main{gap:12px;align-items:start}
+.exercise-number{background:#e1f0ea;color:#176f68;border-radius:8px;font-weight:700}
+.exercise-main h2{font-size:1rem;line-height:1.35;letter-spacing:0}
+.exercise-main p{color:#738480;font-size:.82rem;margin-top:4px}
+.details-toggle{margin-top:9px;color:#176f68;font-weight:700}
+.rep-control{gap:8px;height:46px}
+.rep-control input{height:46px;background:#f4f8f6;border-color:#dbe7e3}
+.stepper{height:46px;width:46px;border-radius:8px;background:#e4f1ec;color:#176f68}
+.stepper.plus{background:#176f68;color:#fff}
+.exercise-details{background:#f4f8f6;border-color:#e1ebe8;border-radius:0;gap:14px}
+.detail-copy p{color:#435b57;line-height:1.5}
+.detail-copy strong,.detail-copy a{color:#176f68}
+.notes-field{margin-top:22px;gap:8px}
+.notes-field textarea{padding:12px;background:#fff}
+.primary-action{min-height:54px;margin-top:16px;background:#176f68;border-radius:8px;box-shadow:none;font-size:1rem}
+.stats-grid{gap:10px}
+.metric,.metric:nth-child(n){background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:none;min-height:92px}
+.metric:nth-child(2){background:#e4f2eb}.metric:nth-child(3){background:#fdf1dc}.metric:nth-child(4){background:#e6effa}
+.metric span{font-size:.8rem;color:#5d716e}.metric strong{color:#174d48}
+#statPain{font-size:1rem;line-height:1.25}
+.chart-section,.calendar-section,.ranking-section{margin-top:28px}
+.section-heading h2{font-size:1.1rem}.month-button{background:#dcece6;color:#176f68}
+.calendar-day.has-session{background:rgba(23,111,104,var(--load))}.calendar-day.selected{outline-color:#176f68}
+.day-card,.history-entry,.day-exercise,.stat-line{background:#fff;border-color:var(--line)}
+.day-metrics span,.day-note{background:#f2f8f5;border-color:#63a783}
+.backup-section{gap:14px;margin:8px 0 28px}.backup-action.cloud{background:#176f68}
+.secondary-action{background:#fff}.history-entry{padding:16px}.history-entry header{color:#176f68}
+@media(max-width:560px){.app-shell{padding:calc(18px + env(safe-area-inset-top)) 14px calc(32px + env(safe-area-inset-bottom))}h1{font-size:1.5rem}.topbar{margin-bottom:18px}.session-panel{grid-template-columns:1fr 1fr}.pain-field{grid-column:1/-1}.exercise-row{grid-template-columns:1fr}.rep-control{grid-template-columns:46px minmax(0,1fr) 46px}.rep-control input{height:46px}.stepper{width:46px;height:46px}.exercise-details{grid-template-columns:1fr;padding:12px 0 0}.exercise-media{object-fit:contain;background:#f4f8f6}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

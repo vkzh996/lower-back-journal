@@ -46,3 +46,26 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid #
 .backup-section{gap:14px;margin:8px 0 28px}.backup-action.cloud{background:#176f68}
 .secondary-action{background:#fff}.history-entry{padding:16px}.history-entry header{color:#176f68}
 @media(max-width:560px){.app-shell{padding:calc(18px + env(safe-area-inset-top)) 14px calc(32px + env(safe-area-inset-bottom))}h1{font-size:1.5rem}.topbar{margin-bottom:18px}.session-panel{grid-template-columns:1fr 1fr}.pain-field{grid-column:1/-1}.exercise-row{grid-template-columns:1fr}.rep-control{grid-template-columns:46px minmax(0,1fr) 46px}.rep-control input{height:46px}.stepper{width:46px;height:46px}.exercise-details{grid-template-columns:1fr;padding:12px 0 0}.exercise-media{object-fit:contain;background:#f4f8f6}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* The previous glass theme uses important declarations; override it explicitly. */
+.topbar,.tabs,.field,.exercise-row,.metric,.day-card,.history-entry,.stat-line,.day-exercise,.empty-state{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;border-color:#d9e3df!important;background:#fff!important}
+.topbar{background:#173f39!important;color:#fff;padding:22px;border:0!important;border-radius:8px}
+.topbar .eyebrow{color:#a9dfc2}.topbar .icon-button{background:#fff;color:#173f39}
+.tabs{background:#dce9e3!important;border:0!important;position:sticky;top:0;z-index:5}
+.tab.active{background:#fff!important}
+.field{background:#fff!important}.exercise-row{border-left:4px solid #44a77a!important}
+.exercise-row:nth-child(4n+2){border-left-color:#e79851!important}.exercise-row:nth-child(4n+3){border-left-color:#6397bb!important}.exercise-row:nth-child(4n+4){border-left-color:#be7f82!important}
+.notes-field,.chart-section,.calendar-section,.ranking-section,.backup-section{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+input,select,textarea,.details-toggle,.backup-action.restore,.secondary-action{background:#f4f8f6!important;border-color:#d6e2dd!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.exercise-details{background:#f4f8f6!important}.storage-choice{background:#dce9e3!important;border:0}
+.workout-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:26px 0 12px}
+.workout-heading h2{font-size:1.2rem}.workout-heading p{font-size:.8rem;color:var(--muted);margin-top:5px}
+.workout-total{display:flex;align-items:baseline;gap:5px;color:#176f68;white-space:nowrap}.workout-total strong{font-size:1.45rem}.workout-total span{font-size:.75rem}
+.exercise-list{margin-top:0}.exercise-row{box-shadow:0 2px 12px rgba(22,59,48,.04)!important}
+.metric:nth-child(2){background:#e3f3e8!important}.metric:nth-child(3){background:#fff0dc!important}.metric:nth-child(4){background:#e5eef9!important}
+.backup-section{padding:18px!important;background:#fff!important;border:1px solid #d9e3df!important;border-radius:8px}
+.storage-choice label{position:relative}.storage-choice input[type="radio"]{width:1px;min-width:0;height:1px;min-height:0;top:0;left:0;margin:0;padding:0}
+.backup-section .section-heading{align-items:start}.backup-section .section-heading span{max-width:55%;text-align:right;overflow-wrap:anywhere}
+.history-entry header{align-items:start;flex-wrap:wrap}.history-entry header span{overflow-wrap:anywhere}
+@media(max-width:560px){.topbar{padding:18px}.tabs{top:env(safe-area-inset-top)}.backup-section .section-heading{display:grid;gap:6px}.backup-section .section-heading span{max-width:none;text-align:left}.backup-actions{grid-template-columns:1fr}.history-entry header{display:grid;gap:5px}.storage-choice span{font-size:.8rem}.workout-heading p{max-width:180px}.exercise-row{padding:14px}.exercise-main{grid-template-columns:34px minmax(0,1fr)}}
+@media(max-width:360px){.session-panel{grid-template-columns:minmax(0,1fr)}.pain-field{grid-column:auto}}

@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.svg" />
   <link rel="stylesheet" href="styles.css?v=16" />
   <link rel="stylesheet" href="storage-mode.css?v=15" />
-  <link rel="stylesheet" href="modern.css?v=17" />
+  <link rel="stylesheet" href="modern.css?v=18" />
 </head>
 <body>
   <div class="app-shell">
@@ -32,7 +32,8 @@
           <label class="field"><span>Самочувствие</span><select id="moodSelect"><option value="5">Отлично</option><option value="4">Хорошо</option><option value="3">Нормально</option><option value="2">Тяжело</option><option value="1">Плохо</option></select></label>
           <label class="field pain-field"><span>Боль в мышцах</span><select id="painRange"><option value="0">Нет боли</option><option value="1">Легкое напряжение</option><option value="2">Тянет, но терпимо</option><option value="3">Заметная боль</option><option value="4">Лучше остановиться</option></select><strong id="painValue">Двигаюсь свободно</strong></label>
         </div>
-        <div class="exercise-list" id="exerciseList" aria-live="polite"></div>
+        <div class="workout-heading"><div><h2>Упражнения</h2><p>Отмечайте выполненные повторы</p></div><div class="workout-total"><strong id="workoutTotal">0</strong><span>повторений</span></div></div>
+        <div class="exercise-list" id="exerciseList"></div>
         <label class="notes-field"><span>Заметка</span><textarea id="sessionNote" rows="3" placeholder="Например: делал медленно, без дискомфорта"></textarea></label>
         <button class="primary-action" id="saveSessionButton" type="button">Сохранить тренировку</button>
       </section>
@@ -74,6 +75,6 @@
       <div class="exercise-details"><img class="exercise-media" loading="lazy" referrerpolicy="no-referrer" alt="" /><div class="detail-copy"><p><strong>Как делать:</strong> <span class="technique"></span></p><p><strong>Зачем:</strong> <span class="benefit"></span></p><p><strong>Проще:</strong> <span class="easier"></span></p><a href="https://goodlooker.ru/uprazhnenia-na-ukreplenie-pojasnicy.html" target="_blank" rel="noreferrer">Источник: GoodLooker</a></div></div>
     </article>
   </template>
-  <script src="app.js?v=16"></script><script src="storage-mode.js?v=15"></script><script src="pain-labels.js?v=16"></script><script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");</script>
+  <script src="app.js?v=18"></script><script src="storage-mode.js?v=15"></script><script src="pain-labels.js?v=16"></script><script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");</script>
 </body>
 </html>

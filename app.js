@@ -49,7 +49,9 @@ function renderExerciseInputs() {
     const node = els.exerciseTemplate.content.firstElementChild.cloneNode(true); node.dataset.exerciseId = exercise.id; node.querySelector(".exercise-number").textContent = index + 1; node.querySelector("h2").textContent = exercise.name; node.querySelector("p").textContent = exercise.target;
     const image = node.querySelector(".exercise-media"); image.src = exercise.image; image.alt = exercise.name; node.querySelector(".technique").textContent = exercise.technique; node.querySelector(".benefit").textContent = exercise.benefit; node.querySelector(".easier").textContent = exercise.easier;
     const input = node.querySelector("input"); input.value = 0; input.dataset.exerciseId = exercise.id; input.setAttribute("aria-label", `${exercise.name}, повторы`);
-    node.querySelector(".minus").addEventListener("click", () => input.value = Math.max(0, Number(input.value || 0) - 1)); node.querySelector(".plus").addEventListener("click", () => input.value = Math.min(200, Number(input.value || 0) + 1));
+    const updateTotal = () => { $("#workoutTotal").textContent = [...els.exerciseList.querySelectorAll("input[data-exercise-id]")].reduce((sum, item) => sum + clampReps(item.value), 0); };
+    input.addEventListener("input", updateTotal);
+    node.querySelector(".minus").addEventListener("click", () => { input.value = Math.max(0, Number(input.value || 0) - 1); updateTotal(); }); node.querySelector(".plus").addEventListener("click", () => { input.value = Math.min(200, Number(input.value || 0) + 1); updateTotal(); });
     node.querySelector(".details-toggle").addEventListener("click", (event) => { node.classList.toggle("open"); event.currentTarget.textContent = node.classList.contains("open") ? "Скрыть" : "Техника"; }); els.exerciseList.append(node);
   });
 }

@@ -1,9 +1,10 @@
-const CACHE_NAME = "lower-back-log-v19";
+const CACHE_NAME = "lower-back-log-v20";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./modern.css?v=19",
+  "./counter-touch.js?v=1",
   "./app.js?v=18",
   "./storage-mode.css",
   "./glass.css",

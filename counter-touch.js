@@ -14,7 +14,7 @@
     repeatTimer = setInterval(() => {
       onRepeat();
       button.click();
-    }, 500);
+    }, 250);
   }
 
   document.addEventListener("touchstart", (event) => {

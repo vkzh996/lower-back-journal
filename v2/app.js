@@ -131,10 +131,11 @@ function renderExercises() {
     node.querySelector(".benefit").textContent = exercise.benefit;
 
     const input = node.querySelector('.stepper input');
-    input.value = 0;
+    input.value = "";
     input.dataset.exerciseId = exercise.id;
     input.setAttribute("aria-label", `${exercise.name}, повторы`);
     input.addEventListener("input", updateTodayPreview);
+    input.addEventListener("blur", () => { if (Number(input.value) === 0) input.value = ""; });
     node.querySelector(".minus").addEventListener("click", () => step(input, -1));
     node.querySelector(".plus").addEventListener("click", () => step(input, 1));
     node.querySelector(".exercise-info").addEventListener("click", () => node.classList.toggle("open"));
@@ -267,7 +268,7 @@ function idbRequest(request) {
 }
 
 function step(input, delta) {
-  input.value = Math.max(0, Math.min(200, Number(input.value || 0) + delta));
+  input.value = Math.max(0, Math.min(200, Number(input.value || 0) + delta)) || "";
   updateTodayPreview();
 }
 

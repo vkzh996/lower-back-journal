@@ -237,6 +237,7 @@ input[type="range"] { padding: 0; accent-color: var(--orange); }
 }
 
 .stepper button {
+  touch-action: manipulation;
   min-height: 48px;
   border: 0;
   border-radius: 16px;

@@ -1,11 +1,11 @@
-const CACHE_NAME = "lower-back-log-v22";
+const CACHE_NAME = "lower-back-log-v24";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./modern.css?v=19",
   "./counter-touch.js?v=3",
-  "./app.js?v=19",
+  "./app.js?v=20",
   "./storage-mode.css",
   "./glass.css",
   "./app.js",
@@ -14,6 +14,9 @@ const ASSETS = [
   "./manifest.webmanifest",
   "./icons/icon-192.svg",
   "./icons/icon-512.svg",
+  "./icons/icon-180.png",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
